@@ -44,5 +44,14 @@ public class TodoServiceImple implements TodoService{
 
 
     }
-    
+
+    @Override
+    public TodoDTO register(TodoDTO dto) {
+        // entity 타입으로 바꿈
+        Todo entity = modelMapper.map(dto, Todo.class);
+
+        Todo result = todorepository.save(entity);
+
+        return modelMapper.map(result,TodoDTO.class);
+    }
 }

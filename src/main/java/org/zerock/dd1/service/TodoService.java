@@ -9,5 +9,7 @@ import jakarta.transaction.Transactional;
 @Transactional
 public interface TodoService {
     PageResponceDTO<TodoDTO> getList();
+
+    TodoDTO register(TodoDTO dto);
     
 }
