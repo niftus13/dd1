@@ -151,7 +151,8 @@ public class BoardRepositoryTest {
     @Test
     public void testSearch1(){
 
-        boardRepository.search1();
+        Pageable pageable  = PageRequest.of(0, 10, Sort.by("bno").descending());
+        boardRepository.search1(null, "1", pageable);
     }
 
 

@@ -2,10 +2,15 @@ package org.zerock.dd1.repository.search;
 
 import java.util.List;
 
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.zerock.dd1.domain.Board;
 import org.zerock.dd1.domain.QBoard;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPQLQuery;
 
 import lombok.extern.log4j.Log4j2;
@@ -19,7 +24,7 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
     }
 
     @Override
-    public List<Board> search1() {
+    public Page<Board> search1(String keyword, String searchType, Pageable pageable) {
         
         // 지금부터 쿼리를 쓰기위해 쿼리 도메인이 필요함 
         //무조건 컴파일 먼저 해줘야함
@@ -28,7 +33,28 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
 
         JPQLQuery<Board> query = from(board);
 
-        query.where(board.title.contains("1"));
+        if(keyword != null && searchType != null){
+
+            // tc -> [t,c]
+            String[] searchArr = searchType.split("");
+
+            // (    )
+            BooleanBuilder searchBuilder = new BooleanBuilder();
+
+            // case or로 조건추가
+            for (String type : searchArr) {
+                switch(type){
+                    case "t" -> searchBuilder.or(board.title.contains(keyword));
+                    case "c" -> searchBuilder.or(board.content.contains(keyword));
+                    case "w" -> searchBuilder.or(board.writer.contains(keyword));
+                }
+            }// end for
+            query.where(searchBuilder);
+        }
+
+        // query.where(board.title.contains("1"));
+
+        this.getQuerydsl().applyPagination(pageable, query);
 
         // SQL문을 객체화 시켜놓음 -> 모든 쿼리문이 query에 붙음
         // fetch = 목록 데이터를 가져옴 , 
@@ -38,10 +64,8 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
         log.info(list);
         log.info("count : " + count);
 
-        return null;
+        return new PageImpl<>(list, pageable, count);
 
     }
-
-    
     
 }
