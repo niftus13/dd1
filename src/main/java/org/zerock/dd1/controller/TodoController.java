@@ -1,7 +1,10 @@
 package org.zerock.dd1.controller;
 
 
+import java.util.Map;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,5 +50,13 @@ public class TodoController {
 
 
         return todoService.getOne(tno);
+    }
+
+    //삭제
+    @DeleteMapping("/{tno}")
+    public Map<String, String> delete(@PathVariable Long tno){
+        
+        todoService.remove(tno);
+        return Map.of("result","success");
     }
 }

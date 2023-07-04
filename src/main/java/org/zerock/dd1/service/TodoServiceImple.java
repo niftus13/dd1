@@ -66,4 +66,10 @@ public class TodoServiceImple implements TodoService{
 
         return dto;
     }
+
+    @Override
+    public void remove(Long tno) {
+        
+        todorepository.deleteById(tno);
+    }
 }
