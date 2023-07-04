@@ -11,5 +11,8 @@ public interface TodoService {
     PageResponceDTO<TodoDTO> getList();
 
     TodoDTO register(TodoDTO dto);
+
+    //조회기능
+    TodoDTO getOne(Long tno);
     
 }

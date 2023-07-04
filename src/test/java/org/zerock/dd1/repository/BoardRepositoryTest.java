@@ -152,7 +152,11 @@ public class BoardRepositoryTest {
     public void testSearch1(){
 
         Pageable pageable  = PageRequest.of(0, 10, Sort.by("bno").descending());
-        boardRepository.search1(null, "1", pageable);
+        Page<Board> result =  boardRepository.search1("tcw", "1", pageable);
+
+        log.info(result.getTotalElements());
+        result.get().forEach(b -> log.info(b));
+        
     }
 
 

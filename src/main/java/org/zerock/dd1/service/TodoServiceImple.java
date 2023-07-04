@@ -1,6 +1,7 @@
 package org.zerock.dd1.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -41,8 +42,6 @@ public class TodoServiceImple implements TodoService{
         response.setDtoList(dtoList);
         
         return response;
-
-
     }
 
     @Override
@@ -53,5 +52,18 @@ public class TodoServiceImple implements TodoService{
         Todo result = todorepository.save(entity);
 
         return modelMapper.map(result,TodoDTO.class);
+    }
+
+    @Override
+    public TodoDTO getOne(Long tno) {
+        
+        Optional<Todo> result = todorepository.findById(tno);
+
+        // 없으면 예외던지기
+        Todo todo = result.orElseThrow();
+
+        TodoDTO dto = modelMapper.map(todo, TodoDTO.class);
+
+        return dto;
     }
 }
