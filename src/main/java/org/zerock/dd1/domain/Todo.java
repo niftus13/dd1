@@ -31,4 +31,9 @@ public class Todo {
     @Column(length = 300, nullable = false)
     private String title;
 
+    // 수정
+    public void changeTitle(String title) {
+        this.title = title;
+    }
+
 }

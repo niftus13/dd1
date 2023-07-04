@@ -17,5 +17,9 @@ public interface TodoService {
 
     //삭제기능
     void remove(Long tno);
+
+    //수정기능
+    void modify(TodoDTO dto);
+
     
 }

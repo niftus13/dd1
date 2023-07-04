@@ -72,4 +72,18 @@ public class TodoServiceImple implements TodoService{
         
         todorepository.deleteById(tno);
     }
+
+    // 수정 -> 하나를 찾아서 바꿔주고 Todo 를 save 해주기
+    @Override
+    public void modify(TodoDTO dto) {
+        
+        Optional<Todo> result = todorepository.findById(dto.getTno());
+        
+        Todo todo = result.orElseThrow();
+
+        todo.changeTitle(dto.getTitle());
+
+        todorepository.save(todo);
+
+    }
 }
