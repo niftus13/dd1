@@ -1,6 +1,7 @@
 package org.zerock.dd1.domain;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -10,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "t_reply")
@@ -17,6 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@ToString(exclude = "board")
 public class Reply {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,8 +31,8 @@ public class Reply {
 
     private String replyer;
 
-    // 연관관계 만들기
-    @ManyToOne
+    // 연관관계 만들기 필요한 순간까지 조회하지 않겠다. lazy loading
+    @ManyToOne(fetch = FetchType.LAZY)
     private Board board;
 
 }
