@@ -41,6 +41,8 @@ public interface BoardRepository extends JpaRepository<Board,Long>, BoardSearch{
     @Query(value = "select * from t_board", nativeQuery = true)
     List<Object[]> listNative();
 
+    //댓글까지
+
 
 
 }
