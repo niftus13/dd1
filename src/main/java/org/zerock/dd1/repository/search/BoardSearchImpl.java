@@ -1,7 +1,7 @@
 package org.zerock.dd1.repository.search;
 
 import java.util.List;
-
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -9,8 +9,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.zerock.dd1.domain.Board;
 import org.zerock.dd1.domain.QBoard;
+import org.zerock.dd1.domain.QReply;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.JPQLQuery;
 
 import lombok.extern.log4j.Log4j2;
@@ -66,6 +68,39 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
 
         return new PageImpl<>(list, pageable, count);
 
+    }
+
+    @Override
+    public Page<Board> searchWithRcnt(String keyword, String searchType, Pageable pageable) {
+        
+        QBoard board = QBoard.board;
+        QReply reply = QReply.reply;
+
+        // left outer join
+        JPQLQuery<Board> query = from(board);
+        query.leftJoin(reply).on(reply.board.eq(board));
+        query.groupBy(board);
+
+        JPQLQuery<Tuple> tupleQuery = 
+            query.select(board.bno, board.title, board.writer, reply.countDistinct());
+        this.getQuerydsl().applyPagination(pageable, tupleQuery);
+
+        List<Tuple> tuples = tupleQuery.fetch();
+
+        List<Object[]> arrList = 
+            tuples.stream().map(tuple -> tuple.toArray()).collect(Collectors.toList());
+
+        
+        
+
+        log.info(tuples);
+        
+        Long count = tupleQuery.fetchCount();
+
+        log.info("count", count);
+
+        
+        return null;
     }
     
 }
