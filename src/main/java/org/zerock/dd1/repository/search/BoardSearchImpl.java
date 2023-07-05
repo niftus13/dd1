@@ -81,6 +81,25 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
         query.leftJoin(reply).on(reply.board.eq(board));
         query.groupBy(board);
 
+        if(keyword != null && searchType != null){
+
+            // tc -> [t,c]
+            String[] searchArr = searchType.split("");
+
+            // (    )
+            BooleanBuilder searchBuilder = new BooleanBuilder();
+
+            // case or로 조건추가
+            for (String type : searchArr) {
+                switch(type){
+                    case "t" -> searchBuilder.or(board.title.contains(keyword));
+                    case "c" -> searchBuilder.or(board.content.contains(keyword));
+                    case "w" -> searchBuilder.or(board.writer.contains(keyword));
+                }
+            }// end for
+            query.where(searchBuilder);
+        }
+
         JPQLQuery<Tuple> tupleQuery = 
             query.select(board.bno, board.title, board.writer, reply.countDistinct());
         this.getQuerydsl().applyPagination(pageable, tupleQuery);
@@ -90,9 +109,6 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
         List<Object[]> arrList = 
             tuples.stream().map(tuple -> tuple.toArray()).collect(Collectors.toList());
 
-        
-        
-
         log.info(tuples);
         
         Long count = tupleQuery.fetchCount();
@@ -100,6 +116,7 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
         log.info("count", count);
 
         
+        // return new PageImpl<>(arrList, pageable, count);
         return null;
     }
     

@@ -173,9 +173,9 @@ public class BoardRepositoryTest {
     @Test
     public void testListWithRcntSearch(){
         Pageable pageable  = PageRequest.of(0, 10, 
-        Sort.by("bno").descending());
+            Sort.by("bno").descending());
 
-        boardRepository.searchWithRcnt(null, null, pageable);
+        boardRepository.searchWithRcnt("tcw", "1", pageable);
 
     }
 
