@@ -1,5 +1,7 @@
 package org.zerock.dd1.repository.search;
 
+
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,106 +20,116 @@ import com.querydsl.jpa.JPQLQuery;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardSearch{
+public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardSearch {
 
-    public BoardSearchImpl(){
-        // 도메인 클래스 지정 이래야 컴파일 에러가 안남 
+    // 생성자를 만들어준다.
+    public BoardSearchImpl() {
         super(Board.class);
     }
 
+    // interface 메소드를 구현
     @Override
-    public Page<Board> search1(String keyword, String searchType, Pageable pageable) {
-        
-        // 지금부터 쿼리를 쓰기위해 쿼리 도메인이 필요함 
-        //무조건 컴파일 먼저 해줘야함
+    public Page<Board> search1(String searchType, String keyword, Pageable pageable) {
 
+        // QueryDomain 이 필요하다
         QBoard board = QBoard.board;
-
+        // Query를 동적으로 만들어내는 작업
+        // SQL 문을 객체화 시켜놓은것
         JPQLQuery<Board> query = from(board);
-
-        if(keyword != null && searchType != null){
-
-            // tc -> [t,c]
-            String[] searchArr = searchType.split("");
-
-            // (    )
-            BooleanBuilder searchBuilder = new BooleanBuilder();
-
-            // case or로 조건추가
-            for (String type : searchArr) {
-                switch(type){
-                    case "t" -> searchBuilder.or(board.title.contains(keyword));
-                    case "c" -> searchBuilder.or(board.content.contains(keyword));
-                    case "w" -> searchBuilder.or(board.writer.contains(keyword));
-                }
-            }// end for
-            query.where(searchBuilder);
-        }
 
         // query.where(board.title.contains("1"));
 
-        this.getQuerydsl().applyPagination(pageable, query);
-
-        // SQL문을 객체화 시켜놓음 -> 모든 쿼리문이 query에 붙음
-        // fetch = 목록 데이터를 가져옴 , 
-        List<Board> list = query.fetch();
-        Long count = query.fetchCount();
-
-        log.info(list);
-        log.info("count : " + count);
-
-        return new PageImpl<>(list, pageable, count);
-
-    }
-
-    @Override
-    public Page<Board> searchWithRcnt(String keyword, String searchType, Pageable pageable) {
-        
-        QBoard board = QBoard.board;
-        QReply reply = QReply.reply;
-
-        // left outer join
-        JPQLQuery<Board> query = from(board);
-        query.leftJoin(reply).on(reply.board.eq(board));
-        query.groupBy(board);
-
-        if(keyword != null && searchType != null){
-
-            // tc -> [t,c]
+        // 키워드 와 타입이 있는지 확인 후
+        if (keyword != null && searchType != null) {
+            // tc => [t,c]
             String[] searchArr = searchType.split("");
-
-            // (    )
+            // BooleanBuilder 생성
             BooleanBuilder searchBuilder = new BooleanBuilder();
 
-            // case or로 조건추가
             for (String type : searchArr) {
-                switch(type){
+
+                switch (type) {
                     case "t" -> searchBuilder.or(board.title.contains(keyword));
                     case "c" -> searchBuilder.or(board.content.contains(keyword));
                     case "w" -> searchBuilder.or(board.writer.contains(keyword));
                 }
-            }// end for
+
+            } // end for
+              // for문 끝난후 where 로 searchBuilder 추가
             query.where(searchBuilder);
         }
 
-        JPQLQuery<Tuple> tupleQuery = 
-            query.select(board.bno, board.title, board.writer, reply.countDistinct());
+        this.getQuerydsl().applyPagination(pageable, query);
+        // list를 가져오는 방법
+        List<Board> list = query.fetch();
+        long count = query.fetchCount();
+
+        log.info(list);
+        log.info("count: " + count);
+        // 동적쿼리까지 처리된 list
+        return new PageImpl<>(list, pageable, count);
+    }
+
+    @Override
+    public Page<Object[]> searchWithRcnt(String searchType, String keyword, Pageable pageable) {
+
+        QBoard board = QBoard.board;
+        QReply reply = QReply.reply;
+
+        // JPQL로 보드 관련 테이블 만드는데 board에서 만든다
+        JPQLQuery<Board> query = from(board);
+        // left join 항상 left join거는 쪽을 기준으로 잡는다.
+        query.leftJoin(reply).on(reply.board.eq(board));
+
+        // 검색조건 추가
+        if (keyword != null && searchType != null) {
+            // tc => [t,c]
+            String[] searchArr = searchType.split("");
+            // BooleanBuilder 생성 ()
+            BooleanBuilder searchBuilder = new BooleanBuilder();
+
+            for (String type : searchArr) {
+
+                switch (type) {
+                    case "t" -> searchBuilder.or(board.title.contains(keyword));
+                    case "c" -> searchBuilder.or(board.content.contains(keyword));
+                    case "w" -> searchBuilder.or(board.writer.contains(keyword));
+                }
+
+            } // end for
+
+              // for문 끝난후 where 로 searchBuilder 추가
+            query.where(searchBuilder);
+        }
+
+        // group by
+        query.groupBy(board);
+
+        // JPQL tuple 타입으로 뽑아줘야된다.
+        // select에 들어가는거는 실제로 추출하는 데이터 column
+        // count 와 countdistinct는 중복된걸 배제하기위해서 사용되고, 조인이 곱의 방식이기때문
+        JPQLQuery<Tuple> tupleQuery = query.select(board.bno, board.title, board.writer, reply.countDistinct());
+
+        // Paging 처리
         this.getQuerydsl().applyPagination(pageable, tupleQuery);
 
+        log.info("1------------------------");
         List<Tuple> tuples = tupleQuery.fetch();
 
-        List<Object[]> arrList = 
-            tuples.stream().map(tuple -> tuple.toArray()).collect(Collectors.toList());
+        List<Object[]> arrList = tuples.stream().map(tuple -> tuple.toArray()).collect(Collectors.toList());
+        // tuple 내부에는 toArray가 나온다.
 
+        log.info("2------------------------");
         log.info(tuples);
-        
-        Long count = tupleQuery.fetchCount();
+        log.info("3------------------------");
+        long count = tupleQuery.fetchCount();
 
-        log.info("count", count);
+        log.info("count: " + count);
 
-        
-        // return new PageImpl<>(arrList, pageable, count);
-        return null;
+
+        // Page까지 처리완료 
+        return new PageImpl<>(arrList, pageable, count);
+
     }
-    
+
 }
