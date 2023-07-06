@@ -13,7 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Commit;
 import org.zerock.dd1.domain.Board;
+import org.zerock.dd1.dto.BoardListRcntDTO;
 import org.zerock.dd1.dto.PageRequestDTO;
+import org.zerock.dd1.dto.PageResponceDTO;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
@@ -184,9 +186,12 @@ public class BoardRepositoryTest {
     public void testSearchDTORcnt(){
         PageRequestDTO pageRequestDTO = new PageRequestDTO();
 
-        boardRepository.searchDTORcnt(pageRequestDTO);
+        PageResponceDTO<BoardListRcntDTO> responceDTO 
+        = boardRepository.searchDTORcnt(pageRequestDTO);
 
-        
+        log.info("--------------------responceDTO : ");
+        log.info(responceDTO);
+
     }
 
 

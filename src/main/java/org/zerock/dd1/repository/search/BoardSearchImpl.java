@@ -167,6 +167,7 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
             } // end for
             query.where(searchBuilder);
         }
+        this.getQuerydsl().applyPagination(pageable,query);
         query.groupBy(board);
         
         JPQLQuery<BoardListRcntDTO> listQuery = query.select(Projections.bean(
@@ -180,7 +181,9 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
         log.info("-----------------------------");
         log.info(list);
 
-        return null;
+        long totalCount = listQuery.fetchCount();
+
+        return new PageResponceDTO<>(list, totalCount, requestDTO);
     }
 
 }
