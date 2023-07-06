@@ -1,6 +1,7 @@
 package org.zerock.dd1.dto;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import lombok.Data;
 
@@ -33,16 +34,18 @@ public class PageResponceDTO<E> {
 
         // 13 -> 1.3 -> 2
         int tempEnd = (int)(Math.ceil(page/10.0) *10); 
-        this.start = tempEnd - 9;
 
+        this.start = tempEnd - 9;
         this.prev = this.start != 1;
 
         //20 170 
-        int realEnd = (int)(Math.ceil(totalCount/(double)size));
+        int realEnd = (int)Math.ceil(totalCount/(double)size);
 
-        this.end = tempEnd < realEnd ? realEnd : tempEnd;
+        this.end = tempEnd > realEnd ? realEnd : tempEnd;
 
         this.next = (this.end * this.size) < totalCount ;
+
+        this.pageNums = IntStream.rangeClosed(start, end).boxed().toList();
 
     }
 
