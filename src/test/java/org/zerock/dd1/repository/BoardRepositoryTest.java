@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Commit;
 import org.zerock.dd1.domain.Board;
+import org.zerock.dd1.dto.PageRequestDTO;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
@@ -177,6 +178,15 @@ public class BoardRepositoryTest {
 
         boardRepository.searchWithRcnt("tcw", "1", pageable);
 
+    }
+
+    @Test
+    public void testSearchDTORcnt(){
+        PageRequestDTO pageRequestDTO = new PageRequestDTO();
+
+        boardRepository.searchDTORcnt(pageRequestDTO);
+
+        
     }
 
 

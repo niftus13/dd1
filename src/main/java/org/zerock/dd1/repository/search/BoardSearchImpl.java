@@ -12,9 +12,13 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.zerock.dd1.domain.Board;
 import org.zerock.dd1.domain.QBoard;
 import org.zerock.dd1.domain.QReply;
+import org.zerock.dd1.dto.BoardListRcntDTO;
+import org.zerock.dd1.dto.PageRequestDTO;
+import org.zerock.dd1.dto.PageResponceDTO;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
 
 import lombok.extern.log4j.Log4j2;
@@ -28,6 +32,7 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
     }
 
     // interface 메소드를 구현
+    // ver.1
     @Override
     public Page<Board> search1(String searchType, String keyword, Pageable pageable) {
 
@@ -69,7 +74,7 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
         // 동적쿼리까지 처리된 list
         return new PageImpl<>(list, pageable, count);
     }
-
+    // ver.2
     @Override
     public Page<Object[]> searchWithRcnt(String searchType, String keyword, Pageable pageable) {
 
@@ -130,6 +135,52 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
         // Page까지 처리완료 
         return new PageImpl<>(arrList, pageable, count);
 
+    }
+
+    // ver.3
+    @Override
+    public PageResponceDTO<BoardListRcntDTO> searchDTORcnt(PageRequestDTO requestDTO) {
+        Pageable pageable = makePageable(requestDTO);
+
+        QBoard board = QBoard.board;
+        QReply reply = QReply.reply;
+
+        JPQLQuery<Board> query = from(board);
+
+        query.leftJoin(reply).on(reply.board.eq(board));
+        String keyword = requestDTO.getKeyword();
+        String searchType = requestDTO.getType();
+        if (keyword != null && searchType != null) {
+
+            String[] searchArr = searchType.split("");
+
+            BooleanBuilder searchBuilder = new BooleanBuilder();
+
+            for (String type : searchArr) {
+
+                switch (type) {
+                    case "t" -> searchBuilder.or(board.title.contains(keyword));
+                    case "c" -> searchBuilder.or(board.content.contains(keyword));
+                    case "w" -> searchBuilder.or(board.writer.contains(keyword));
+                }
+
+            } // end for
+            query.where(searchBuilder);
+        }
+        query.groupBy(board);
+        
+        JPQLQuery<BoardListRcntDTO> listQuery = query.select(Projections.bean(
+            BoardListRcntDTO.class,
+            board.bno,
+            board.title,
+            reply.countDistinct().as("replyCount")));
+
+        List<BoardListRcntDTO> list = listQuery.fetch();
+
+        log.info("-----------------------------");
+        log.info(list);
+
+        return null;
     }
 
 }
