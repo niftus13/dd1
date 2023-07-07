@@ -12,4 +12,9 @@ public interface ReplyRepository extends JpaRepository<Reply,Long>{
     @Query("select r from Reply r where r.board.bno =:bno ")
     Page<Reply> listBoard(@Param("bno") Long bno, Pageable pageable);
 
+
+    //댓글이 몇개인지 가져오는 count
+    @Query("select count(r) from Reply r where r.board.bno =:bno ")
+    Long getCountBoard(@Param("bno") Long bno);
+
 }
