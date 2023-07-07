@@ -1,5 +1,6 @@
 package org.zerock.dd1.controller;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +24,8 @@ public class BoardController {
 
 
     @GetMapping(value = "/list")
-    public PageResponceDTO<BoardListRcntDTO> list (PageRequestDTO pageRequestDTO){
+    public PageResponceDTO<BoardListRcntDTO> list (
+        @ParameterObject PageRequestDTO pageRequestDTO){
 
         log.info(pageRequestDTO);
 
