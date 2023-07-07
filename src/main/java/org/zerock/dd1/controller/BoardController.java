@@ -3,8 +3,10 @@ package org.zerock.dd1.controller;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.zerock.dd1.dto.BoardDTO;
 import org.zerock.dd1.dto.BoardListRcntDTO;
 import org.zerock.dd1.dto.PageRequestDTO;
 import org.zerock.dd1.dto.PageResponceDTO;
@@ -31,6 +33,12 @@ public class BoardController {
 
         return boardService.listRcnt(pageRequestDTO);
         
+    }
+
+    @GetMapping("/{bno}")
+    public BoardDTO get(@PathVariable("bno") Long bno){
+
+        return boardService.getOne(bno);
     }
 
 }

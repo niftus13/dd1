@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.zerock.dd1.domain.Board;
+import org.zerock.dd1.dto.BoardReadDTO;
 import org.zerock.dd1.repository.search.BoardSearch;
 
 public interface BoardRepository extends JpaRepository<Board,Long>, BoardSearch{
@@ -46,6 +47,8 @@ public interface BoardRepository extends JpaRepository<Board,Long>, BoardSearch{
     @Query("select b.bno, b.title, b.writer, count(r) from Board b left outer join Reply r on r.board = b group by b order by b.bno desc")
     List<Object[]> getListWithRcnt();
 
+    @Query("select b from Board b where b.bno = :bno")
+    BoardReadDTO readOne(@Param("bno") Long bno);
 
 
 
