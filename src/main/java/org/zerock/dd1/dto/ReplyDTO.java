@@ -11,11 +11,5 @@ public class ReplyDTO {
     private String replyer;
     private Long bno;
 
-    public void changeText(String Text) {
-        this.replyText = Text;
-    }
-
-    public void changeFile(String fileName) {
-        this.replyFile = fileName;
-    }  
+  
 }
