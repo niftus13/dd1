@@ -9,5 +9,9 @@ import org.zerock.dd1.dto.ReplyPageRequestDTO;
 public interface ReplyService {
 
     PageResponceDTO<ReplyDTO> list(ReplyPageRequestDTO requestDTO);
+
+    Long register(ReplyDTO replyDTO);
+
+    ReplyDTO read(Long rno);
     
 }
