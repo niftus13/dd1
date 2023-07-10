@@ -43,7 +43,7 @@ public class ReplyController {
 
         Long newRno = replyService.register(replyDTO);
 
-        return Map.of("register" , newRno);  
+        return Map.of("result" , newRno);  
     }
 
     @GetMapping(value = "/{rno}")
