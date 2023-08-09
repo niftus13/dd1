@@ -40,6 +40,7 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
         QBoard board = QBoard.board;
         // Query를 동적으로 만들어내는 작업
         // SQL 문을 객체화 시켜놓은것
+        
         JPQLQuery<Board> query = from(board);
 
         // query.where(board.title.contains("1"));
